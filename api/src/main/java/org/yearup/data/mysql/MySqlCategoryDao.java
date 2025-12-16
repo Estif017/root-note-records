@@ -24,7 +24,7 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao
     public List<Category> getAllCategories()
     {
         List<Category> categories = new ArrayList<>();
-        String sql = "SELECT * FROM categories ";
+        String sql = "SELECT * FROM categories";
         // get all categories
 try (Connection connection = getConnection();
      PreparedStatement statement = connection.prepareStatement(sql);
@@ -43,15 +43,45 @@ while (rs.next()){
     @Override
     public Category getById(int categoryId)
     {
+
+        String sql = "SELECT * FROM categories WHERE category_id=?";
         // get category by id
+        try (Connection connection= getConnection();
+        PreparedStatement statement = connection.prepareStatement(sql)){
+            statement.setInt(1,categoryId);
+            try (ResultSet rs = statement.executeQuery()){
+                if(rs.next()){
+                    return mapRow(rs);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
         return null;
     }
 
     @Override
     public Category create(Category category)
     {
+        String sql = """
+        INSERT INTO categories (name, description)
+        VALUES (?, ?)
+        """;
+        try(Connection connection = getConnection();
+        PreparedStatement statement = connection.prepareStatement(sql,PreparedStatement.RETURN_GENERATED_KEYS)) {
+            statement.setString(1,category.getName());
+            statement.setString(2,category.getDescription());
+            statement.executeUpdate();
+            try (ResultSet rs = statement.getGeneratedKeys()){
+                if(rs.next()){
+                    category.setCategoryId(rs.getInt(1));
+                }
+                return category;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
         // create a new category
-        return null;
     }
 
     @Override
