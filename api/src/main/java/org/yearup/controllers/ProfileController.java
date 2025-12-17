@@ -35,4 +35,18 @@ public class ProfileController {
         }
         return profile;
     }
+
+    @PutMapping
+    public Profile updateProfile(@RequestBody Profile profile, Principal principal){
+        String username = principal.getName();
+        User user = userDao.getByUserName(username);
+
+        Profile existingProfile = profileDao.getByUserId(user.getId());
+        if (existingProfile == null)
+        {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Profile not found for current user");
+        }
+        profile.setUserId(user.getId());
+        return profileDao.update(profile);
+    }
 }
