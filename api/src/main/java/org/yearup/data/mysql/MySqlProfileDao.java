@@ -44,4 +44,11 @@ public class MySqlProfileDao extends MySqlDaoBase implements ProfileDao
         }
     }
 
+    public Profile getByUserId(int userId){
+        return new Profile();
+    }
+    public Profile update(Profile profile){
+        return new Profile();
+    }
+
 }
