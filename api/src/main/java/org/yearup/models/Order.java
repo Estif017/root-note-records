@@ -87,6 +87,12 @@ public class Order {
     public void setLineItems(List<OrderLineItem> lineItems) {
         this.lineItems = lineItems;
     }
+
+    public void addLineItem(OrderLineItem item)
+    {
+        lineItems.add(item);
+    }
+
     public BigDecimal getTotal()
     {
         BigDecimal lineItemTotal = lineItems.stream()
