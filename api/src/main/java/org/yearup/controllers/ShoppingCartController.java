@@ -12,6 +12,7 @@ import org.yearup.models.ShoppingCartItem;
 import org.yearup.models.User;
 
 import java.security.Principal;
+import java.util.Map;
 
 // convert this class to a REST controller
 // only logged in users should have access to these actions
@@ -58,7 +59,7 @@ public class ShoppingCartController
     // add a POST method to add a product to the cart - the url should be
     // https://localhost:8080/cart/products/15 (15 is the productId to be added
     @PostMapping("products/{productId}")
-    public void addProduct(@PathVariable int productId,Principal principal){
+    public ShoppingCart addProduct(@PathVariable int productId, Principal principal){
         try{
             if (productDao.getById(productId) == null)
             {
@@ -69,6 +70,7 @@ public class ShoppingCartController
             int userId = user.getId();
 
             shoppingCartDao.addProduct(userId,productId);
+            return shoppingCartDao.getByUserId(userId);
         }catch(Exception e)
         {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Oops... our bad.");
@@ -79,7 +81,7 @@ public class ShoppingCartController
     // https://localhost:8080/cart/products/15 (15 is the productId to be updated)
     // the BODY should be a ShoppingCartItem - quantity is the only value that will be updated
     @PutMapping("products/{productId}")
-    public void updateProduct(@PathVariable int productId, @RequestBody ShoppingCartItem item, Principal principal){
+    public ShoppingCart updateProduct(@PathVariable int productId, @RequestBody ShoppingCartItem item, Principal principal){
         try{
             String username = principal.getName();
             User user = userDao.getByUserName(username);
@@ -87,7 +89,7 @@ public class ShoppingCartController
 
             shoppingCartDao.updateProduct(userId, productId, item.getQuantity());
 
-
+            return shoppingCartDao.getByUserId(user.getId());
         }catch(Exception e)
         {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Oops... our bad.");
@@ -98,13 +100,14 @@ public class ShoppingCartController
     // https://localhost:8080/cart
 
     @DeleteMapping
-    public void clearCart(Principal principal){
+    public ShoppingCart clearCart(Principal principal){
         try{
             String username = principal.getName();
             User user = userDao.getByUserName(username);
             int userId = user.getId();
 
             shoppingCartDao.clearCart(userId);
+            return new ShoppingCart();
         }catch(Exception e)
         {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Oops... our bad.");
